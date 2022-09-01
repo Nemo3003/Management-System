@@ -3,6 +3,7 @@
 #Import sql connector 
 from os import system
 import mysql.connector
+import re
 
 #making database
 connection = mysql.connector.connect(
@@ -11,14 +12,42 @@ myCursor = connection.cursor()
 #myCursor.execute("CREATE DATABASE Employee")
 #myCursor.execute("CREATE TABLE empdata (Id INT(11) PRIMARY KEY, Name VARCHAR(1000), Email_Id TEXT(1000),Phone_no INT(11), Address TEXT(1000), Post TEXT(1000), Salary BIGINT(20))")\
 
+#Regular expression to validate email
+regex =  r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+#regular expression to validate a phone
+Pattern = re.compile("(0|91)?[7-9][0-9]{9}")
 #Function to add employee
 
 def Add_Employ():
     print("{:>60}".format("-->> Add Employee Record<<--"))
     Id = input("Enter Employee ID: ")
+    if(check_employee_id(Id)== True):
+        print("Employee ID Already Exists. Try again")
+        press = input("Press any key to continue...")
+        menu()
+    #--------------------------------------------------------#
     Name = input("Enter Employee Name: ")
+    if(check_employee_name(Name)== True):
+        print("Employee Already Exists. Try again")
+        press = input("Press any key to continue...")
+        menu()
+     #--------------------------------------------------------#
     Email_Id = input("Enter Employee Email: ")
+    if(re.fullmatch(regex, Email_Id)):
+        print("Valid Email")
+    else:
+        print("Invalid Email")
+        press = input("Press Any Key To Continue..")
+        Add_Employ()
+     #--------------------------------------------------------#
     Phone_no = input("Enter Employee Phone No: ")
+    if(Pattern.match(Phone_no)):
+        print("Valid Phone Number")
+    else:
+        print("Invalid Phone Number")
+        press = input("Press Any Key To Continue..")
+        Add_Employ()
+     #--------------------------------------------------------#
     Address = input("Enter Employee Address: ")
     Post = input("Enter Employee Post: ")
     Salary = input("Enter Employee Salary: ")
@@ -36,6 +65,51 @@ def Add_Employ():
     connection.commit()
     print("New Employee added successfully!")
     press = input("Press any key to continue...")
+    menu()
+
+#Check to see if the employee exists
+def check_employee_name(employee_name):
+    sql = 'SELECT * FROM empdata WHERE Name=%s'
+    c = connection.cursor(buffered= True)
+    data = (employee_name, )
+    c.execute(sql, data)
+    r = c.rowcount
+    match r:
+        case 1:
+            return True
+        case _:
+            return False
+    
+def check_employee_id(Id):
+    sql = 'SELECT * FROM empdata WHERE Id=%s'
+    c = connection.cursor(buffered= True)
+    data = (Id, )
+    c.execute(sql, data)
+    r = c.rowcount
+    match r:
+        case 1:
+            return True
+        case _:
+            return False
+    
+def Display_Employee():
+    print("{:>60}".format("-->> Display Employee Record <<--"))
+    # query to select all rows from Employee (empdata) Table
+    sql = 'select * from empdata'
+    c = connection.cursor()
+    c.execute(sql)
+    # Fetching all details of all the Employees
+    r = c.fetchall()
+    for i in r:
+        print("Employee Id: ", i[0])
+        print("Employee Name: ", i[1])
+        print("Employee Email Id: ", i[2])
+        print("Employee Phone No.: ", i[3])
+        print("Employee Address: ", i[4])
+        print("Employee Post: ", i[5])
+        print("Employee Salary: ", i[6])
+        print("\n")
+    press = input("Press Any key To Continue..")
     menu()
 #Menu Function to display 
 def menu():
@@ -57,6 +131,13 @@ def menu():
         case 1:
             system("cls")
             Add_Employ()
+        case 2:
+            system("cls")
+            Display_Employee()
+        case 7:
+            system("cls")
+            print("{:>60}".format("Have a nice day!"))
+            exit(0)
         case _:
             print("invalid choice")
             press = input("Press any key to continue...")
