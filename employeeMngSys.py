@@ -15,7 +15,7 @@ myCursor = connection.cursor()
 #Regular expression to validate email
 regex =  r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 #regular expression to validate a phone
-Pattern = re.compile("(0|91)?[7-9][0-9]{9}")
+Pattern = re.compile("(0|54?[7-9][0-9]{9}")
 #Function to add employee
 
 def Add_Employ():
@@ -111,6 +111,50 @@ def Display_Employee():
         print("\n")
     press = input("Press Any key To Continue..")
     menu()
+#//////////////////////////////////////////////////////////////////////////////////////    
+def Update_Employee():
+    print("{:>60}".format("-->> Update Employee Record <<--"))
+    Id = input("Enter Employee Id: ")
+    if (check_employee_id(Id)== False):
+        print("Employee ID Already exists. Try again...")
+        press = input("Press any key to continue...")
+        menu()
+    else:
+        Email_Id = input("Enter Employee email ID: ")
+        Phone_no = input("Enter Employee Phone No: ")
+        Address = input("Enter Employee Address: ")
+        #Updating the employee's data 
+        sql = 'UPDATE empdata SET Email_Id = %s, Phone_No = %s, Address = %s WHERE Id = %s'
+        data = (Email_Id, Phone_no, Address, Id)
+        c = connection.cursor()
+        c.execute(sql, data)
+
+        #Commit method
+        connection.commit()
+        print("Employee Updated Successfully")
+        press = input("Press any key to continue...")
+        menu()
+#////////////////////////////////////////////////////////////////////////////////////////
+def Promote_Employee():
+    print("{:>60}".format("-->> Promote Employee Record <<--"))
+    Id = input("Enter Employee Id: ")
+    if (check_employee_id(Id)== False):
+        print("Employee ID Already exists. Try again...")
+        press = input("Press any key to continue...")
+        menu()
+    else:
+        Amount = int(input("Enter increased salary amount: "))
+        sql = 'SELECT Salary FROM empdata WHERE Id = %s'
+        data = (Id,)
+        c = connection.cursor()
+        c.execute(sql, data)
+        rail = c.fetchone()
+        types = rail[0]+Amount
+        sql = 'UPDATE empdata SET Salary = %s WHERE Id = %s'
+        draw = (types,Id)
+        sql = c.execute(sql,draw)
+        connection.commit()
+        print('Employee Salary Increased: Promoted')
 #Menu Function to display 
 def menu():
     system("cls")
@@ -134,6 +178,12 @@ def menu():
         case 2:
             system("cls")
             Display_Employee()
+        case 3:
+            system("cls")
+            Update_Employee()
+        case 4:
+            system("cls")
+            Promote_Employee()
         case 7:
             system("cls")
             print("{:>60}".format("Have a nice day!"))
