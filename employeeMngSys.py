@@ -15,7 +15,7 @@ myCursor = connection.cursor()
 #Regular expression to validate email
 regex =  r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 #regular expression to validate a phone
-Pattern = re.compile("(0|91)?[7-9][0-9]{9}")
+Pattern = re.compile("((\+54)|0)[.\- ]?[0-9][.\- ]?[0-9][.\- ]?[0-9]")
 
 #Function to add employee
 
