@@ -4,7 +4,7 @@
 from os import system
 import mysql.connector
 import re
-
+#python -m auto_py_to_exe
 #making database
 connection = mysql.connector.connect(
     host="localhost", user="root", password="", database="employee")
@@ -15,7 +15,8 @@ myCursor = connection.cursor()
 #Regular expression to validate email
 regex =  r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 #regular expression to validate a phone
-Pattern = re.compile("(0|54?[7-9][0-9]{9}")
+Pattern = re.compile("(0|91)?[7-9][0-9]{9}")
+
 #Function to add employee
 
 def Add_Employ():
@@ -136,25 +137,89 @@ def Update_Employee():
         menu()
 #////////////////////////////////////////////////////////////////////////////////////////
 def Promote_Employee():
-    print("{:>60}".format("-->> Promote Employee Record <<--"))
+    print("{:>60}".format("-->> Promote Employee Record <<--\n"))
     Id = input("Enter Employee Id: ")
-    if (check_employee_id(Id)== False):
-        print("Employee ID Already exists. Try again...")
-        press = input("Press any key to continue...")
+    # checking If Employee Id is Exit Or Not
+    if(check_employee_id(Id) == False):
+        print("Employee Record Not exists\nTry Again")
+        press = input("Press Any Key To Continue..")
         menu()
     else:
-        Amount = int(input("Enter increased salary amount: "))
-        sql = 'SELECT Salary FROM empdata WHERE Id = %s'
+        Amount  = int(input("Enter Increase Salary: "))
+        #query to fetch salary of Employee with given data
+        sql = 'SELECT Salary FROM empdata WHERE Id=%s'
+        data = (Id,)
+        c = connection.cursor()
+        
+        #executing the sql query
+        c.execute(sql, data)
+        
+        #fetching salary of Employee with given Id
+        r = c.fetchone()
+        t = r[0]+Amount
+        
+        #query to update salary of Employee with given id
+        sql = 'UPDATE empdata SET Salary = %s WHERE Id = %s'
+        d = (t, Id)
+
+        #executing the sql query
+        c.execute(sql, d)
+
+        #commit() method to make changes in the table 
+        connection.commit()
+        print("Employee Promoted")
+        press = input("Press Any key To Continue..")
+        menu()
+
+#//////////////////////////////////////////////////////////////////////////////////////////
+def Remove_Employee():
+    print("{:>60}".format("-->> Remove Employee Record <<--\n"))
+    Id = input("Enter Employee Id: ")
+    # checking If Employee Id is Exit Or Not
+    if(check_employee_id(Id) == False):
+        print("Employee Record Not exists\nTry Again")
+        press = input("Press Any Key To Continue..")
+        menu()
+    else:
+        #query to delete Employee from empdata table
+        sql = 'DELETE FROM empdata WHERE Id = %s'
+        data = (Id,)
+        c = connection.cursor()
+
+        #executing the sql query
+        c.execute(sql, data)
+
+        #commit() method to make changes in the empdata table
+        connection.commit()
+        print("Employee Removed")
+        press = input("Press Any key To Continue..")
+        menu()
+#//////////////////////////////////////////////////////////////////////////////////////////
+def Search_Employee():
+    print("{:>60}".format("-->> Search Employee Record <<--\n"))
+    Id = input("Enter Employee Id: ")
+    # checking If Employee Id is Exit Or Not
+    if(check_employee_id(Id) == False):
+        print("Employee Record Not exists\nTry Again")
+        press = input("Press Any Key To Continue..")
+        menu()
+    else:
+        sql = "SELECT * FROM empdata WHERE Id = %s"
         data = (Id,)
         c = connection.cursor()
         c.execute(sql, data)
-        rail = c.fetchone()
-        types = rail[0]+Amount
-        sql = 'UPDATE empdata SET Salary = %s WHERE Id = %s'
-        draw = (types,Id)
-        sql = c.execute(sql,draw)
-        connection.commit()
-        print('Employee Salary Increased: Promoted')
+        rail = c.fetchall()
+        for i in rail:
+            print("Employee Id: ", i[0])
+        print("Employee Name: ", i[1])
+        print("Employee Email Id: ", i[2])
+        print("Employee Phone No.: ", i[3])
+        print("Employee Address: ", i[4])
+        print("Employee Post: ", i[5])
+        print("Employee Salary: ", i[6])
+        print("\n")
+    press = input("Press Any key To Continue..")
+    menu()
 #Menu Function to display 
 def menu():
     system("cls")
@@ -184,6 +249,12 @@ def menu():
         case 4:
             system("cls")
             Promote_Employee()
+        case 5:
+            system("cls")
+            Remove_Employee()
+        case 6:
+            system("cls")
+            Search_Employee()
         case 7:
             system("cls")
             print("{:>60}".format("Have a nice day!"))
